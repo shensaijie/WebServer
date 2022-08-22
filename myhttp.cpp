@@ -107,7 +107,7 @@ void *accept_request(void* from_client)
 
 	 if (path[strlen(path) - 1] == '/')
 	 {
-		 strcat(path, "test.html");
+		 strcat(path, "index.html");
 
 	 }
  
@@ -124,7 +124,7 @@ void *accept_request(void* from_client)
 		if ((st.st_mode & S_IFMT) == S_IFDIR)//S_IFDIR代表目录
 	   //如果请求参数为目录, 自动打开test.html
 		{
-			strcat(path, "/test.html");
+			strcat(path, "index.html");
 		}
 	
 	  //文件可执行
