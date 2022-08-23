@@ -1,7 +1,7 @@
-all: myhttp
+all: http
 
-myhttp: myhttp.cpp
-	gcc -W -Wall -o myhttp myhttp.cpp -lpthread
+http: Main.cpp
+	g++ -W -Wall -o http Main.cpp -lpthread
 
 clean:
-	rm myhttp
+	rm http
