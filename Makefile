@@ -1,7 +1,12 @@
-all: http
-
-http: Main.cpp
-	g++ -W -Wall -o http Main.cpp -lpthread
-
+src=$(wildcard ./*.cpp)  
+objs=$(patsubst %.cpp, %.o, $(src))
+target=http
+$(target):$(objs)
+	$(CXX) $(objs) -o $(target) -lpthread
+	
+%.o:%.cpp
+	$(CXX) -c $< -o $@
+	
+.PHONY:clean
 clean:
-	rm http
+	rm $(objs) -f
