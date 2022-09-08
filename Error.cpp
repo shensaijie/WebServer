@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 void bad_request(int client)
 {
