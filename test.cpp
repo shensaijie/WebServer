@@ -1,8 +1,7 @@
 #include "Socket.h"
 #include "InetAddress.h"
 #include "Acceptor.h"
-#include "TcpStream.h"
-#include "Channel.h"
+#include "TcpServer.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -11,13 +10,13 @@
 #include <unistd.h>
 using namespace std;
 
-typedef unique_ptr<TcpStream> TcpStreamPtr;
+typedef unique_ptr<TcpServer> TcpServerPtr;
 
 void test_request() { 
     InetAddress seraddr("192.168.1.10", 8848);
     Acceptor acc(seraddr);
     while(1) {
-	TcpStreamPtr tcp = acc.accept();
+	TcpServerPtr tcp = acc.accept();
 	cout << "建立链接..." << tcp->fd() << endl;
 	tcp->request();
     }
@@ -59,12 +58,12 @@ void test_Acceptor() {
     } 
 }
 
-void test_TcpStream() {
+void test_TcpServer() {
     
     InetAddress seraddr("192.168.1.10", 8848);
     Acceptor acc(seraddr);
     while(1) {
-	TcpStreamPtr tcp = acc.accept();
+	TcpServerPtr tcp = acc.accept();
 	cout << "建立链接..." << tcp->fd() << endl;
 	char buff[1024];
 	tcp->receiveSome(buff, sizeof buff);
