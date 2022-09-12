@@ -13,7 +13,7 @@ using namespace std;
 typedef unique_ptr<TcpServer> TcpServerPtr;
 
 void test_request() { 
-    InetAddress seraddr("192.168.1.10", 8848);
+    InetAddress seraddr("192.168.225.130", 8848);
     Acceptor acc(seraddr);
     while(1) {
 	TcpServerPtr tcp = acc.accept();
