@@ -15,7 +15,7 @@ public:
     void *request();
 
     void serveFile();
-
+    void executeCgi();
     //recv send 发送接受数据
     int receiveAll(void* buf, int len);
     int receiveSome(void* buf, int len); 
@@ -30,9 +30,12 @@ private:
     bool post_;
     bool cgi_;
     std::string path_;
+    std::string search_;
+    int content_len;
     static constexpr const char* version_ = "HTTP/1.0";
     static constexpr const char* stat_ok = " 200 OK\r\n";
-    static constexpr const char* headers_ = "Server: ssj\r\nContent-Type: text/html\r\n\r\n";
+    static constexpr const char* server_ = "Server: ssj\r\n";
+    static constexpr const char* type_ = "Content-Type: text/html\r\n";
     static constexpr const char* notfound_ = "<HTML><TITLE>Not Found</TITLE>\r\n<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\nis unavailable or nonexistent.\r\n</P></BODY></HTML>\r\n";
 
 };
