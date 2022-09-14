@@ -1,6 +1,6 @@
 #include "Acceptor.h"
 #include "InetAddress.h"
-#include "TcpServer.h"
+#include "TcpConnection.h"
 
 #include <cstdio>
 #include <sys/socket.h>
@@ -13,13 +13,13 @@ Acceptor::Acceptor(const InetAddress& listenAddr)
     listenSock_.listen();
 }
 
-TcpServerPtr Acceptor::accept() {
+TcpConnectionPtr Acceptor::accept() {
     int sockfd = ::accept(listenSock_.fd(), nullptr, nullptr);
     if (sockfd >= 0) {
-	return TcpServerPtr(new TcpServer(Socket(sockfd)));
+	return TcpConnectionPtr(new TcpConnection(Socket(sockfd)));
     } else {
 	perror("Acceptor::accept: ");
-	return TcpServerPtr();
+	return TcpConnectionPtr();
     }
 }
 

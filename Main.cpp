@@ -1,7 +1,10 @@
 #include "TcpServer.h"
 
-int main(){
+#include <iostream>
+
+int main()
+{
     TcpServer ts;
-    ts.startUp();
+    ts.test_request();
     return 0;
 }

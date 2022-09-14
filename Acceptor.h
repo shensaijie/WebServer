@@ -6,8 +6,8 @@
 
 class InetAddress;
 
-class TcpServer;
-typedef std::unique_ptr<TcpServer> TcpServerPtr;
+class TcpConnection;
+typedef std::unique_ptr<TcpConnection> TcpConnectionPtr;
 
 class Acceptor : noncopyable {
 public:
@@ -17,7 +17,7 @@ public:
     Acceptor& operator=(Acceptor&&) = default;
 
     //thread safe 线程安全
-    TcpServerPtr accept();
+    TcpConnectionPtr accept();
     Socket acceptSocket();
 
 private:
