@@ -1,0 +1,7 @@
+#include "TcpServer.h"
+
+int main(){
+    TcpServer ts;
+    ts.startUp();
+    return 0;
+}
