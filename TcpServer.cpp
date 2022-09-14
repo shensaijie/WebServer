@@ -10,22 +10,18 @@ void TcpServer::startUp() {
     Acceptor acc(seraddr);
     pthread_t pt;
     while(1) {
-	    TcpConnectionPtr tcp = acc.accept(), tcp2;
-        std::cout << "建立链接..." << tcp->fd() << std::endl;
-        //tcp->request();        
-        auto p = tcp.release();
-        p->request();
-        //using namespace std;
+	    TcpConnectionPtr tcp2 = acc.accept();
+        std::cout << "new connection... port:" << tcp2->fd() << std::endl;
+        //auto p = tcp.release();
+        //p->request();
         
-        //cout << "post " << p->post_ << "\ncgi " << p->cgi_ << "\npath " << p->path_ << endl;
-        
-        //tcp2.reset(tcp.release());
-	    //pthread_create(&pt, NULL, tcp->TcpConnection::request, NULL);
-        //tcp->request();
+        tcp = tcp2.release();
+	    //tcp->request();
+        pthread_create(&pt, NULL, &TcpServer::requestHelper, this);
     }
 }
 
 void* TcpServer::requestHelper(void* args) {
-    //((TcpServer*)args)->ptc->request();
+    ((TcpServer*)args)->tcp->request();
     return NULL;
 }

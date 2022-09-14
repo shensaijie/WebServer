@@ -6,5 +6,7 @@ typedef std::unique_ptr<TcpConnection> TcpConnectionPtr;
 class TcpServer {
 public:
     void startUp();
-    void* requestHelper(void* args);
+private:
+    static void* requestHelper(void* args);
+    TcpConnection* tcp;
 };

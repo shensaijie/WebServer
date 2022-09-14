@@ -2,10 +2,10 @@ src=$(wildcard ./*.cpp)
 objs=$(patsubst %.cpp, %.o, $(src))
 target=http
 $(target):$(objs)
-	$(CXX) -std=c++11 -lpthread $(objs) -o $(target)
+	$(CXX) -std=c++11 -pthread $(objs) -o $(target)
 	
 %.o:%.cpp
-	$(CXX) -std=c++11 -c $< -o $@
+	$(CXX) -std=c++11 -pthread -c $< -o $@
 	
 .PHONY:clean
 clean:

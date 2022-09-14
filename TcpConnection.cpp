@@ -28,7 +28,6 @@ void TcpConnection::request() {
         std::cout << "请求方式错误: " << word << std::endl;
 	    return;
     }
-    std::cout << "请求方式 " << word << std::endl;
     if(::strcasecmp(word.c_str(), "POST") == 0)
 	    post_ = cgi_ = true;
     else 
@@ -118,22 +117,18 @@ int TcpConnection::sendSome(const void* buf, int len) {
 
 //如果不是CGI文件，也就是静态文件，直接读取文件返回给请求的http客户端即可
 void TcpConnection::serveFile() {
-    std::cout << "serveFile " << path_ << std::endl;
     std::string buf;
     std::fstream fin;
     while(receiveLine(buf) && buf!="\n") buf = "";
     fin.open(path_, std::ios_base::in);
     if(fin.is_open()) {
-        std::cout << "file is open" << std::endl;
         buf = version_ + stat_ok + server_ + type_ + "\r\n";
         sendAll(buf.c_str(), buf.size());
 	    while(fin.good()){
 	        getline(fin, buf);
 	        sendAll(buf.c_str(), buf.size());
 	    }
-        std::cout << "1\n";
         sendAll("\r\n", 2);
-        std::cout << "2\n";
     } else {
         std::cout << "404\n";
     }
@@ -170,16 +165,19 @@ void TcpConnection::executeCgi() {
      sendAll(buf.c_str(), buf.size());
 	 if (pipe(cgi_output) < 0) {
 		  //cannot_execute
+         std::cout << "cannot_execute\n";
 		  return;
 	 }
 	 if (pipe(cgi_input) < 0) { 
 		  //cannot_execute
+         std::cout << "cannot_execute\n";
 		  return;
 	 }
 
      pid_t pid;
 	 if ( (pid = fork()) < 0 ) {
 		  //cannot_execute(client);
+         std::cout << "cannot_execute(client)\n";
 		  return;
 	 }
 	 if (pid == 0)  // 子进程: 运行CGI 脚本 
