@@ -2,11 +2,12 @@
 
 class noncopyable {
 protected:
-    noncopyable() {}
+        noncopyable() {}
 private:
-    noncopyable(const noncopyable&) = delete;
-    void operator=(const noncopyable&) = delete;
+        noncopyable(const noncopyable&) = delete;
+        void operator=(const noncopyable&) = delete;
 };
 
 class copyable {
+
 };

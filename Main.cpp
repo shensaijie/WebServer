@@ -5,6 +5,6 @@
 int main()
 {
     TcpServer ts;
-    ts.test_request();
+    ts.startUp();
     return 0;
 }

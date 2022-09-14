@@ -17,7 +17,7 @@ public:
     void startUp();
     void Loop();
     //处理监听到的HTTP请求
-    void *request();
+    void request();
 
     void serveFile();
     void executeCgi();
@@ -37,10 +37,5 @@ private:
     std::string path_;
     std::string search_;
     int content_len;
-    static constexpr const char* version_ = "HTTP/1.0";
-    static constexpr const char* stat_ok = " 200 OK\r\n";
-    static constexpr const char* server_ = "Server: ssj\r\n";
-    static constexpr const char* type_ = "Content-Type: text/html\r\n";
-    static constexpr const char* notfound_ = "<HTML><TITLE>Not Found</TITLE>\r\n<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\nis unavailable or nonexistent.\r\n</P></BODY></HTML>\r\n";
 
 };

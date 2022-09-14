@@ -9,24 +9,30 @@
 #include <sstream>
 #include <cstring>
 
+
+std::string version_( "HTTP/1.0");
+std::string stat_ok( " 200 OK\r\n");
+std::string server_("Server: ssj\r\n");
+std::string type_("Content-Type: text/html\r\n");
+std::string notfound_("<HTML><TITLE>Not Found</TITLE>\r\n<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\nis unavailable or nonexistent.\r\n</P></BODY></HTML>\r\n");
+
 TcpConnection::TcpConnection(Socket&& sock) : sock_(std::move(sock)) { }
 
 
-void *TcpConnection::request() {
-    std::cout << "request\n";
+void TcpConnection::request() {
     std::string buf, word;
     while(receiveLine(buf)==0);
     std::istringstream in(buf);
     in >> word;
     if(::strcasecmp(word.c_str(), "GET") && ::strcasecmp(word.c_str(), "POST")) {
-	//请求方式错误
-	return nullptr;
+        std::cout << "请求方式错误: " << word << std::endl;
+	    return;
     }
-    
+    std::cout << "请求方式 " << word << std::endl;
     if(::strcasecmp(word.c_str(), "POST") == 0)
-	post_ = cgi_ = true;
+	    post_ = cgi_ = true;
     else 
-	post_ = false;
+	    post_ = false;
     
     in >> word;
 
@@ -47,6 +53,7 @@ void *TcpConnection::request() {
     struct stat st;
     if (stat(path_.c_str(), &st) == -1) {	
         while(receiveLine(buf) && buf!="\n") buf = "";
+        std::cout << "没有找到页面：" << path_ << std::endl;
         //返回没有找到
     } else {
 	if((st.st_mode & S_IFMT) == S_IFDIR)//S_IFDIR代表目录
@@ -61,7 +68,8 @@ void *TcpConnection::request() {
     else
     	serveFile();
 
-    return nullptr;
+    close(sock_.fd());
+    return;
 }
 
 int TcpConnection::receiveAll(void* buf, int len) {
@@ -110,26 +118,27 @@ int TcpConnection::sendSome(const void* buf, int len) {
 
 //如果不是CGI文件，也就是静态文件，直接读取文件返回给请求的http客户端即可
 void TcpConnection::serveFile() {
+    std::cout << "serveFile " << path_ << std::endl;
     std::string buf;
     std::fstream fin;
     while(receiveLine(buf) && buf!="\n") buf = "";
     fin.open(path_, std::ios_base::in);
     if(fin.is_open()) {
-    buf = version_;
-    buf += stat_ok;
-    buf += server_;
-    buf += type_;
-    buf += "\r\n";
-    sendAll(buf.c_str(), buf.size());
-	while(fin.good()){
-	    getline(fin, buf);
-	    sendAll(buf.c_str(), buf.size());
-	}
+        std::cout << "file is open" << std::endl;
+        buf = version_ + stat_ok + server_ + type_ + "\r\n";
+        sendAll(buf.c_str(), buf.size());
+	    while(fin.good()){
+	        getline(fin, buf);
+	        sendAll(buf.c_str(), buf.size());
+	    }
+        std::cout << "1\n";
         sendAll("\r\n", 2);
+        std::cout << "2\n";
     } else {
-        //404
+        std::cout << "404\n";
     }
     fin.close();
+    return;
 }
 
 void TcpConnection::executeCgi() {
