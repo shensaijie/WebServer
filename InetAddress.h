@@ -10,6 +10,7 @@ public:
     InetAddress() { addr_.sin_family = AF_UNSPEC; }
     InetAddress(const std::string ip,uint16_t port);
 
+    explicit InetAddress(uint16_t port);
     void setPort(uint16_t port) { addr_.sin_port = htons(port); }
     uint16_t port() const { return ntohs(addr_.sin_port);}
     sa_family_t family() const { return addr_.sin_family; }

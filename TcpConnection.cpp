@@ -67,7 +67,6 @@ void TcpConnection::request() {
     else
     	serveFile();
 
-    close(sock_.fd());
     return;
 }
 

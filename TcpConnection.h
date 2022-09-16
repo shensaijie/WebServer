@@ -5,17 +5,15 @@
 
 #include <memory>
 
-class TcpServer;
+class TcpConnection;
+typedef std::unique_ptr<TcpConnection> TcpConnectionPtr;
 
 class TcpConnection {
-    friend class TcpServer;
 public:
     TcpConnection(Socket&& sock);
     ~TcpConnection() = default;
     TcpConnection() = default;
-
-    void startUp();
-    void Loop();
+    void operator() () { request(); }
     //处理监听到的HTTP请求
     void request();
 
