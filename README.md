@@ -2,7 +2,7 @@
 
 ## 开发环境
 - OS: Ubuntu 14
-- Complier: g++
+- Complier: g++ 4.8
 
 ## 并发模型
 
