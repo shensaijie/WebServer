@@ -10,11 +10,11 @@
 #include <cstring>
 
 
-std::string version_( "HTTP/1.0");
-std::string stat_ok( " 200 OK\r\n");
-std::string server_("Server: ssj\r\n");
-std::string type_("Content-Type: text/html\r\n");
-std::string notfound_("<HTML><TITLE>Not Found</TITLE>\r\n<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\nis unavailable or nonexistent.\r\n</P></BODY></HTML>\r\n");
+static const std::string version_( "HTTP/1.0");
+static const std::string stat_ok( " 200 OK\r\n");
+static const std::string server_("Server: ssj\r\n");
+static const std::string type_("Content-Type: text/html\r\n");
+static const std::string notfound_("<HTML><TITLE>Not Found</TITLE>\r\n<BODY><P>The server could not fulfill\r\nyour request because the resource specified\r\nis unavailable or nonexistent.\r\n</P></BODY></HTML>\r\n");
 
 TcpConnection::TcpConnection(Socket&& sock) : sock_(std::move(sock)) { }
 
@@ -51,21 +51,22 @@ void TcpConnection::request() {
     
     struct stat st;
     if (stat(path_.c_str(), &st) == -1) {	
-        while(receiveLine(buf) && buf!="\n") buf = "";
         std::cout << "没有找到页面：" << path_ << std::endl;
-        //返回没有找到
+        std::string stat(" 404 Not Found\r\n");
+        path_ = "httpdocs/not_found.html";
+        serveFile(stat, path_);
+        return;
     } else {
-	if((st.st_mode & S_IFMT) == S_IFDIR)//S_IFDIR代表目录
-	    path_ += "index.html";
+	    if((st.st_mode & S_IFMT) == S_IFDIR)//S_IFDIR代表目录
+	        path_ += "index.html";
 
-	if((st.st_mode & S_IXUSR) || (st.st_mode & S_IXGRP) || (st.st_mode & S_IXOTH));
-	else cgi_ = 0;
-	    
+	    if((st.st_mode & S_IXUSR) || (st.st_mode & S_IXGRP) || (st.st_mode & S_IXOTH));
+	        else cgi_ = 0;
     }
     if(cgi_)
 	    executeCgi();
     else
-    	serveFile();
+    	serveFile(stat_ok, path_);
 
     return;
 }
@@ -81,17 +82,17 @@ int TcpConnection::receiveSome(void* buf, int len) {
 int TcpConnection::receiveLine(std::string &str) {
     char c = '\0';
     while(c != '\n') {
-	if(::recv(sock_.fd(), &c, 1, 0) > 0) {
-	    if(c == '\r') {
-		if(::recv(sock_.fd(), &c, 1, MSG_PEEK) > 0 && c=='\n')
-		    ::recv(sock_.fd(), &c, 1, 0);
-		else
-		    c = '\n';
+	    if(::recv(sock_.fd(), &c, 1, 0) > 0) {
+	        if(c == '\r') {
+		        if(::recv(sock_.fd(), &c, 1, MSG_PEEK) > 0 && c=='\n')
+		            ::recv(sock_.fd(), &c, 1, 0);
+		        else
+		            c = '\n';
+	        }
 	    }
-	    str += c;
-	}
-	else 
-	    c = '\n';
+	    else 
+	        c = '\n';
+        str += c;
     }
     return str.size();
 }
@@ -115,13 +116,15 @@ int TcpConnection::sendSome(const void* buf, int len) {
 }
 
 //如果不是CGI文件，也就是静态文件，直接读取文件返回给请求的http客户端即可
-void TcpConnection::serveFile() {
+void TcpConnection::serveFile(const std::string stat, const std::string fpath) {
     std::string buf;
     std::fstream fin;
-    while(receiveLine(buf) && buf!="\n") buf = "";
-    fin.open(path_, std::ios_base::in);
+    while(receiveLine(buf) && buf!="\n"){
+        buf = "";
+    }
+    fin.open(fpath, std::ios_base::in);
     if(fin.is_open()) {
-        buf = version_ + stat_ok + server_ + type_ + "\r\n";
+        buf = version_ + stat + server_ + type_ + "\r\n";
         sendAll(buf.c_str(), buf.size());
 	    while(fin.good()){
 	        getline(fin, buf);
@@ -129,7 +132,8 @@ void TcpConnection::serveFile() {
 	    }
         sendAll("\r\n", 2);
     } else {
-        std::cout << "404\n";
+        // 系统错误
+        std::cout << "没有打开" << fpath << std::endl;
     }
     fin.close();
     return;
@@ -155,7 +159,8 @@ void TcpConnection::executeCgi() {
           }
 		  if (content_len == -1) {
 		     //bad_request
-		     return;
+		      std::cout << "bad_request\n";
+              return;
 		  }
 	 }
 
@@ -164,19 +169,19 @@ void TcpConnection::executeCgi() {
      sendAll(buf.c_str(), buf.size());
 	 if (pipe(cgi_output) < 0) {
 		  //cannot_execute
-         std::cout << "cannot_execute\n";
+          std::cout << "cannot_execute\n";
 		  return;
 	 }
 	 if (pipe(cgi_input) < 0) { 
 		  //cannot_execute
-         std::cout << "cannot_execute\n";
+          std::cout << "cannot_execute\n";
 		  return;
 	 }
 
      pid_t pid;
 	 if ( (pid = fork()) < 0 ) {
 		  //cannot_execute(client);
-         std::cout << "cannot_execute(client)\n";
+          std::cout << "cannot_execute(client)\n";
 		  return;
 	 }
 	 if (pid == 0)  // 子进程: 运行CGI 脚本 

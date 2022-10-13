@@ -17,7 +17,7 @@ public:
     //处理监听到的HTTP请求
     void request();
 
-    void serveFile();
+    void serveFile(const std::string, const std::string);
     void executeCgi();
     //recv send 发送接受数据
     int receiveAll(void* buf, int len);
